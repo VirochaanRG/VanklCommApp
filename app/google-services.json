@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "534057790395",
+    "project_id": "vanklcomm",
+    "storage_bucket": "vanklcomm.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:534057790395:android:ea07a2adff28b36423f29e",
+        "android_client_info": {
+          "package_name": "com.example.vanklcommapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChRfYs4gPGYovLfuwEQoYYvtVSrwlWZhQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
