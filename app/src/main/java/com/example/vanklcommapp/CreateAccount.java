@@ -26,6 +26,17 @@ public class CreateAccount extends AppCompatActivity {
     TextView textView;
     Button buttonCreate;
     FirebaseAuth mAuth;
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if(currentUser != null){
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    }
     @SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,12 +67,11 @@ public class CreateAccount extends AppCompatActivity {
                 username = String.valueOf(editTextUsername.getText());
                 employeeId = String.valueOf(editTextEid.getText());
                 password = String.valueOf(editTextPassword.getText());
-                if(TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(username) ||  TextUtils.isEmpty(employeeId) ){
+                if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(username) || TextUtils.isEmpty(employeeId)) {
                     Toast.makeText(CreateAccount.this, "Field Missing", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                mAuth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(CreateAccount.this, new OnCompleteListener<AuthResult>() {
+                mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(CreateAccount.this, new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
@@ -74,8 +84,9 @@ public class CreateAccount extends AppCompatActivity {
                                     System.out.println("sd");
                                 }
                             }
-                        });
+                });
+
             }
-        }
+        });
     }
 }
