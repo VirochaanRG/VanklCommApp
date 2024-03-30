@@ -1,5 +1,7 @@
 package com.example.vanklcommapp;
 
+import static android.content.ContentValues.TAG;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -11,82 +13,143 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class CreateAccount extends AppCompatActivity {
-    TextInputEditText editTextEmail, editTextPassword, editTextEid, editTextUsername;
-    TextView textView;
-    Button buttonCreate;
-    FirebaseAuth mAuth;
-//    @Override
-//    public void onStart() {
-//        super.onStart();
-//        // Check if user is signed in (non-null) and update UI accordingly.
-//        FirebaseUser currentUser = mAuth.getCurrentUser();
-//        if(currentUser != null){
-//            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-//            startActivity(intent);
-//            finish();
-//        }
-//    }
-    @SuppressLint("WrongViewCast")
+    private EditText emailTextView, passwordTextView, usernameTextView, eIDTextView;
+    private Button Btn;
+    private ProgressBar progressbar;
+    private FirebaseAuth mAuth;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_account);
-        editTextEmail = findViewById(R.id.email);
-        editTextPassword = findViewById(R.id.password);
-        editTextEid = findViewById(R.id.employeeId);
-        editTextUsername = findViewById(R.id.username);
-        buttonCreate = findViewById(R.id.createButton);
+
+        // taking FirebaseAuth instance
         mAuth = FirebaseAuth.getInstance();
-        textView = findViewById(R.id.loginNow);
-        textView.setOnClickListener(new OnClickListener() {
+
+        // initialising all views through id defined above
+        emailTextView = findViewById(R.id.email);
+        passwordTextView = findViewById(R.id.passwd);
+        eIDTextView = findViewById(R.id.employeeID);
+        usernameTextView = findViewById(R.id.username);
+        Btn = findViewById(R.id.btnregister);
+        progressbar = findViewById(R.id.progressbar);
+
+        // Set on Click Listener on Registration button
+        Btn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), Login.class);
-                startActivity(intent);
-                finish();
+            public void onClick(View v)
+            {
+                registerNewUser();
             }
         });
+    }
 
-        buttonCreate.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String email, password, username, employeeId;
-                FirebaseUser user = mAuth.getCurrentUser();
-                email = String.valueOf(editTextEmail.getText());
-                username = String.valueOf(editTextUsername.getText());
-                employeeId = String.valueOf(editTextEid.getText());
-                password = String.valueOf(editTextPassword.getText());
-                if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(username) || TextUtils.isEmpty(employeeId)) {
-                    Toast.makeText(CreateAccount.this, "Field Missing", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(CreateAccount.this, new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(CreateAccount.this, "Authentication Success.",
-                                            Toast.LENGTH_SHORT).show();
-                                } else {
-                                    // If sign in fails, display a message to the user.
-                                    Toast.makeText(CreateAccount.this, "Authentication failed.",
-                                            Toast.LENGTH_SHORT).show();
-                                    System.out.println("sd");
-                                }
-                            }
+    private void registerNewUser()
+    {
+
+        // show the visibility of progress bar to show loading
+        progressbar.setVisibility(View.VISIBLE);
+
+        // Take the value of two edit texts in Strings
+        String email, password, username , eid;
+        email = emailTextView.getText().toString();
+        password = passwordTextView.getText().toString();
+        username = usernameTextView.getText().toString();
+        eid = eIDTextView.getText().toString();
+        // Validations for input email and password
+        if (TextUtils.isEmpty(email)) {
+            Toast.makeText(getApplicationContext(),
+                            "Please enter email!!",
+                            Toast.LENGTH_LONG)
+                    .show();
+            return;
+        }
+        if (TextUtils.isEmpty(password)) {
+            Toast.makeText(getApplicationContext(),
+                            "Please enter password!!",
+                            Toast.LENGTH_LONG)
+                    .show();
+            return;
+        }
+
+        // create new user or register new user
+        mAuth
+                .createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task)
+                    {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(getApplicationContext(),
+                                            "Registration successful!",
+                                            Toast.LENGTH_LONG)
+                                    .show();
+
+                            // hide the progress bar
+                            progressbar.setVisibility(View.GONE);
+                            Map<String, Object> user = new HashMap<>();
+                            user.put("username", username);
+                            user.put("password", password);
+                            user.put("email", email);
+                            user.put("employeeID", eid);
+
+                            // Add a new document with a generated ID
+                            db.collection("users")
+                                    .add(user)
+                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                        @Override
+                                        public void onSuccess(DocumentReference documentReference) {
+                                            Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.w(TAG, "Error adding document", e);
+                                        }
+                                    });
+                            // if the user created intent to login activity
+                            Intent intent
+                                    = new Intent(CreateAccount.this,
+                                    MainActivity.class);
+                            startActivity(intent);
+                        }
+                        else {
+
+                            // Registration failed
+                            Toast.makeText(
+                                            getApplicationContext(),
+                                            "Registration failed!!"
+                                                    + " Please try again later",
+                                            Toast.LENGTH_LONG)
+                                    .show();
+
+                            // hide the progress bar
+                            progressbar.setVisibility(View.GONE);
+                        }
+                    }
                 });
-
-            }
-        });
     }
 }

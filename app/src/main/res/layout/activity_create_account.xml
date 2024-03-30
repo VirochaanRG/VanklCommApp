@@ -1,55 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Linear Layout with vertical orientation and other properties -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http:// schemas.android.com/apk/res-auto"
+    xmlns:tools="http:// schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:gravity="center_vertical"
     android:orientation="vertical"
-    android:padding="16dp"
-    tools:context=".Login">
+    android:padding="15dp"
+    tools:context=".CreateAccount" >
 
-    <ImageView
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_gravity="center"
-        android:contentDescription="Logo"
-        android:src="@drawable/ic_launcher_foreground" />
-
-    <EditText
-        android:id="@+id/username"
-        android:layout_width="match_parent"
+    <!-- TextView for heading -->
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="Username"/>
+        android:text="Create Account" />
+
+    <!-- Edit text for email -->
     <EditText
         android:id="@+id/email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Email"
-        android:inputType="textPassword"/>
-    <EditText
-        android:id="@+id/employeeId"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="EmployeeId"
-        android:inputType="textPassword"/>
-    <EditText
-        android:id="@+id/password"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Password"
-        android:inputType="textPassword"/>
+        android:hint="Enter your Email" />
 
+    <!-- Edit text for password -->
+    <EditText
+        android:id="@+id/passwd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter your Password"
+        android:inputType="textPassword" />
+    <EditText
+        android:id="@+id/username"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter your Username" />
+
+    <!-- Edit text for password -->
+    <EditText
+        android:id="@+id/employeeID"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter your Employee ID"
+        android:inputType="textPassword" />
+    <!-- Button for register with text "Register" -->
     <Button
-        android:id="@+id/createButton"
+        android:id="@+id/btnregister"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Create Account" />
-    <TextView
-        android:id="@+id/loginNow"
-        android:layout_width="match_parent"
+        android:text="CreateAccount" />
+
+    <!-- ProgressBar for loading time -->
+    <ProgressBar
+        android:id="@+id/progressbar"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Click to Login"
-        android:textStyle="bold"
-        android:textSize="20sp"
-        android:gravity="center"
-        />
-</LinearLayout>
+        android:visibility="gone" />
+</LinearLayout> 
