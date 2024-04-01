@@ -114,7 +114,7 @@ public class CreateAccount extends AppCompatActivity {
                             user.put("password", password);
                             user.put("email", email);
                             user.put("employeeID", eid);
-
+                            user.put("role", "employee");
                             // Add a new document with a generated ID
                             db.collection("users")
                                     .add(user)

@@ -15,6 +15,18 @@
         android:theme="@style/Theme.AppCompat.DayNight"
         tools:targetApi="31">
         <activity
+            android:name=".MessageChannel"
+            android:exported="false" />
+        <activity
+            android:name=".MessageContactChooser"
+            android:exported="false" />
+        <activity
+            android:name=".ContactList"
+            android:exported="false" />
+        <activity
+            android:name=".ContactController"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="false"
             android:label="@string/title_activity_main"

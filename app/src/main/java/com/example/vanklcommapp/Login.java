@@ -1,5 +1,7 @@
 package com.example.vanklcommapp;
 
+import static android.content.ContentValues.TAG;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -7,6 +9,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,13 +31,30 @@ public class Login extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     @Override
+    protected void onStart() {
+
+        super.onStart();
+
+    }
+    @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         // taking instance of FirebaseAuth
         mAuth = FirebaseAuth.getInstance();
-
+        FirebaseUser user = mAuth.getCurrentUser();
+        System.out.println(user);
+        if (user != null) {
+            // User is signed in.
+            Intent intent
+                    = new Intent(getApplicationContext(),
+                    MainActivity.class);
+            startActivity(intent);
+            finish();
+        } else {
+            Log.d(TAG, "Not logged in");
+        }
         // initialising all views through id defined above
         emailTextView = findViewById(R.id.email);
         passwordTextView = findViewById(R.id.password);
