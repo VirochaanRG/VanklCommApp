@@ -34,7 +34,7 @@ import java.util.Map;
 
 public class CreateAccount extends AppCompatActivity {
     private EditText emailTextView, passwordTextView, usernameTextView, eIDTextView;
-    private Button Btn;//test
+    private Button Btn;
     private ProgressBar progressbar;
     private FirebaseAuth mAuth;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
