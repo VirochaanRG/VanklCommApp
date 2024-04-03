@@ -33,4 +33,13 @@
         android:id="@+id/message"
         android:text="Messaging"
         />
+    <Button
+        android:id="@+id/btn_broadcast"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Broadcast"
+        android:layout_marginBottom="24dp"
+        android:onClick="broadcastMessage"
+        />
 </LinearLayout>
+
