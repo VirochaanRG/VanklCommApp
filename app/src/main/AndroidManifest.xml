@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".Application.SystemManagement"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -25,18 +26,18 @@
             android:name=".ContactList"
             android:exported="false" />
         <activity
-            android:name=".ContactController"
+            android:name=".ContactAdder"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".Controllers.MainActivity"
             android:exported="false"
             android:label="@string/title_activity_main"
             android:theme="@style/Theme.Material3.Dark" />
         <activity
-            android:name=".CreateAccount"
+            android:name=".Controllers.CreateAccount"
             android:exported="false" />
         <activity
-            android:name=".Login"
+            android:name=".Controllers.Login"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

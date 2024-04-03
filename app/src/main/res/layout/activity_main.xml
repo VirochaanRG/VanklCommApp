@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:fitsSystemWindows="true"
     android:gravity="center"
-    tools:context=".MainActivity">
+    tools:context=".Controllers.MainActivity">
 
     <TextView
         android:id="@+id/user_details"
@@ -39,7 +39,6 @@
         android:layout_height="wrap_content"
         android:text="Broadcast"
         android:layout_marginBottom="24dp"
-        android:onClick="broadcastMessage"
         />
 </LinearLayout>
 

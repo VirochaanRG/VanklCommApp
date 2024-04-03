@@ -2,7 +2,6 @@ package com.example.vanklcommapp;
 
 import static android.content.ContentValues.TAG;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -14,21 +13,20 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.example.vanklcommapp.Models.DataTypes.Contact;
+import com.example.vanklcommapp.Models.DataTypes.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
+import java.util.Observable;
+import java.util.Observer;
 
-public class ContactList extends AppCompatActivity {
+public class ContactList extends AppCompatActivity implements Observer {
     FirebaseFirestore db;
     FirebaseUser user;
     List<String> accounts;
@@ -142,11 +140,16 @@ public class ContactList extends AppCompatActivity {
             @Override
             public void onClick(View v)
             {
-                Intent intent = new Intent(getApplicationContext(), ContactController.class);
+                Intent intent = new Intent(getApplicationContext(), ContactAdder.class);
                 startActivity(intent);
                 finish();
             }
         });
+
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
 
     }
 }

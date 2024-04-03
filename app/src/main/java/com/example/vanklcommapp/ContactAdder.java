@@ -13,16 +13,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.SearchView;
 
+import com.example.vanklcommapp.Controllers.MainActivity;
+import com.example.vanklcommapp.Models.DataTypes.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class ContactController extends AppCompatActivity {
+public class ContactAdder extends AppCompatActivity {
     private FirebaseFirestore db;
     FirebaseAuth mAuth;
     FirebaseUser userCur;

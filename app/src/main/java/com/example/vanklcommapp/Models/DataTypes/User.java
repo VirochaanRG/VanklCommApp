@@ -1,4 +1,4 @@
-package com.example.vanklcommapp;
+package com.example.vanklcommapp.Models.DataTypes;
 
 import com.google.firebase.firestore.DocumentId;
 

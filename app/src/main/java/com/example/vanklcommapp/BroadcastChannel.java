@@ -20,7 +20,7 @@ public class BroadcastChannel extends AppCompatActivity {
         setContentView(R.layout.activity_broadcast_channel);
 
         // Initialize UI components and set up listeners
-        TextView textView = findViewById(R.id.textView);
+        TextView textView = findViewById(R.id.textViewBroadcast);
 
         // Register broadcast receiver
         broadcastReceiver = new BroadcastReceiver() {
