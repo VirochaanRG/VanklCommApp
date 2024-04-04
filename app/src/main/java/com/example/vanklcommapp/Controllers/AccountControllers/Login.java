@@ -12,12 +12,9 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.vanklcommapp.Application.SystemManagement;
-import com.example.vanklcommapp.Controllers.AccountControllers.CreateAccount;
 import com.example.vanklcommapp.Controllers.MainActivity;
 import com.example.vanklcommapp.Models.AccountModel;
-import com.example.vanklcommapp.Models.ContactModel;
 import com.example.vanklcommapp.R;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Observable;
@@ -28,10 +25,8 @@ public class Login extends AppCompatActivity implements Observer {
     private Button Btn, BtnCreate;
     private ProgressBar progressBar;
     private AccountModel accountModel;
-
-    private FirebaseAuth mAuth;
     private FirebaseUser user;
-    ContactModel model;
+
     @Override
     protected void onStart() {
 
@@ -53,6 +48,10 @@ public class Login extends AppCompatActivity implements Observer {
             ((SystemManagement) getApplication()).setModelAccount(accountModel);
             accountModel = ((SystemManagement) getApplication()).getModelAccount();
         }
+
+        ((SystemManagement) getApplication()).setModelContact(null);
+        ((SystemManagement) getApplication()).setModelMessage(null);
+
         //Subscribing to model
         accountModel.addObserver(this);
 

@@ -10,16 +10,11 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import com.example.vanklcommapp.Application.SystemManagement;
-import com.example.vanklcommapp.ContactAdder;
 import com.example.vanklcommapp.Models.AccountModel;
 import com.example.vanklcommapp.Models.ContactModel;
 import com.example.vanklcommapp.R;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -90,7 +85,6 @@ public class ContactList extends AppCompatActivity implements Observer {
     public void setContactListValues(){
         ArrayAdapter adapter = new ArrayAdapter<String>(this,
                 R.layout.activity_item, contactModel.contacts);
-        System.out.println("adapter");
         listView.setAdapter(adapter);
     }
 }

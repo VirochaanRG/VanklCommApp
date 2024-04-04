@@ -1,6 +1,4 @@
-package com.example.vanklcommapp;
-
-import static android.content.ContentValues.TAG;
+package com.example.vanklcommapp.Controllers.ContactControllers;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -8,33 +6,27 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SearchView;
 
 import com.example.vanklcommapp.Application.SystemManagement;
+import com.example.vanklcommapp.Controllers.Adapters.ContactAdapter;
 import com.example.vanklcommapp.Controllers.MainActivity;
 import com.example.vanklcommapp.Models.AccountModel;
 import com.example.vanklcommapp.Models.ContactModel;
-import com.example.vanklcommapp.Models.DataTypes.User;
+import com.example.vanklcommapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-import java.util.ArrayList;
-import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
 
 public class ContactAdder extends AppCompatActivity implements Observer {
-    private FirebaseFirestore db;
     FirebaseAuth mAuth;
     FirebaseUser userCur;
     private RecyclerView recyclerView;
-    private MyAdapter adapter;
-    private ArrayList<User> userList;
+    private ContactAdapter adapter;
     Button buttonReturn;
 
     AccountModel accountModel;
@@ -54,11 +46,7 @@ public class ContactAdder extends AppCompatActivity implements Observer {
 
         mAuth = FirebaseAuth.getInstance();
         userCur = mAuth.getCurrentUser();
-        db = FirebaseFirestore.getInstance();
 
-        //
-
-        userList = new ArrayList<>();
 
         System.out.println(userCur);
 
@@ -67,7 +55,7 @@ public class ContactAdder extends AppCompatActivity implements Observer {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        adapter = new MyAdapter(userList);
+        adapter = new ContactAdapter(contactModel.userList, contactModel);
         recyclerView.setAdapter(adapter);
         buttonReturn = findViewById(R.id.returnMain);
         SearchView searchView = findViewById(R.id.searchView);
@@ -78,7 +66,7 @@ public class ContactAdder extends AppCompatActivity implements Observer {
             }
             @Override
             public boolean onQueryTextChange(String newText) {
-                searchUsers(newText);
+                contactModel.searchUsers(newText);
                 return true;
             }
         });
@@ -92,28 +80,12 @@ public class ContactAdder extends AppCompatActivity implements Observer {
         });
     }
 
-    private void searchUsers(String query) {
-        db.collection("users")
-                .whereEqualTo("email", query)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        userList.clear();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            User user = document.toObject(User.class);
-                            if (userCur != null && !Objects.equals(user.getEmail(), userCur.getEmail())) {
-                                userList.add(user);
-                            }
-                        }
-                        adapter.notifyDataSetChanged();
-                    } else {
-                        Log.d(TAG, "Error getting documents: ", task.getException());
-                    }
-                });
-    }
 
     @Override
     public void update(Observable o, Object arg) {
-
+        if(arg.equals("ContactSearch")){
+            System.out.println("Adapter Change");
+            adapter.notifyDataSetChanged();
+        }
     }
 }

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:fitsSystemWindows="true"
-    tools:context=".MessageChannel">
+    tools:context=".Controllers.MessageControllers.MessageChannel">
 
 
 

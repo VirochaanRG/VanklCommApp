@@ -12,9 +12,10 @@ import android.widget.TextView;
 import com.example.vanklcommapp.Application.SystemManagement;
 import com.example.vanklcommapp.Controllers.ContactControllers.ContactList;
 import com.example.vanklcommapp.Controllers.AccountControllers.Login;
-import com.example.vanklcommapp.MessageContactChooser;
+import com.example.vanklcommapp.Controllers.MessageControllers.MessageContactChooser;
 import com.example.vanklcommapp.Models.AccountModel;
 import com.example.vanklcommapp.Models.ContactModel;
+import com.example.vanklcommapp.Models.MessageModel;
 import com.example.vanklcommapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
     AccountModel accountModel;
     Button buttonMessage;
     ContactModel contactModel;
+    MessageModel messageModel;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //Init activity
@@ -55,11 +57,18 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
         //Initialize other models if they are not null
         contactModel = ((SystemManagement) getApplication()).getModelContact();
-        if(contactModel == null){
+        messageModel = ((SystemManagement) getApplication()).getModelMessage();
+        if (contactModel == null){
             contactModel = new ContactModel();
             ((SystemManagement) getApplication()).setModelContact(contactModel);
             contactModel = ((SystemManagement) getApplication()).getModelContact();
         }
+        if (messageModel == null){
+            messageModel = new MessageModel();
+            ((SystemManagement) getApplication()).setModelMessage(messageModel);
+            messageModel = ((SystemManagement) getApplication()).getModelMessage();
+        }
+        contactModel.addObserver(this);
 
         //If user is null return to Login else show the users Email and UID
         if (user == null){

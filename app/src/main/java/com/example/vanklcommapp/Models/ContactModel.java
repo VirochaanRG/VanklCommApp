@@ -2,26 +2,29 @@ package com.example.vanklcommapp.Models;
 
 import static android.content.ContentValues.TAG;
 
-import android.content.Intent;
 import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
-import com.example.vanklcommapp.MessageChannel;
+import androidx.annotation.NonNull;
+
 import com.example.vanklcommapp.Models.DataTypes.Contact;
 import com.example.vanklcommapp.Models.DataTypes.User;
-import com.example.vanklcommapp.R;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Observable;
+import java.util.Observer;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ContactModel extends Observable {
     public FirebaseAuth mAuth;
@@ -29,12 +32,18 @@ public class ContactModel extends Observable {
     public FirebaseFirestore db;
     public List<String> accounts;
     public List<String> contacts;
+    public ArrayList<User> userList;
     public ContactModel(){
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         user = mAuth.getCurrentUser();
+        userList = new ArrayList<>();
+        accounts = new ArrayList<>();
+        contacts = new ArrayList<>();
         System.out.println("Contact User: " + user);
     }
+
+
     public static ArrayList<String> removeDuplicates(ArrayList<String> list)
     {
 
@@ -56,9 +65,9 @@ public class ContactModel extends Observable {
         return newList;
     }
     public void showContactList(){
-        //Init Account lists and Contact Lists
-        accounts = new ArrayList<>();
-        contacts = new ArrayList<>();
+        //Clear Lists for no duplicates
+        accounts.clear();
+        contacts.clear();
         //Query Database to get the User with given Email
         db.collection("users").whereEqualTo("email", user.getEmail()).get()
                 .addOnCompleteListener(task -> {
@@ -113,4 +122,89 @@ public class ContactModel extends Observable {
                     }
                 });
     }
+    public void searchUsers(String query) {
+        userList.clear();
+        db.collection("users").whereEqualTo("email", query).get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        userList.clear();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            User userDoc = document.toObject(User.class);
+                            if (user != null && !Objects.equals(userDoc.getEmail(), user.getEmail())) {
+                                userList.add(userDoc);
+                            }
+                        }
+
+                        //Notify Observers that a user exists
+                        setChanged();
+                        notifyObservers("ContactSearch");
+
+                    } else {
+                        Log.d(TAG, "Error getting documents: ", task.getException());
+                    }
+                });
+    }
+
+    public void addContact(User contactUser){
+        db.collection("users").whereEqualTo("email", user.getEmail()).get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        User userRef = new User();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            userRef = (document.toObject(User.class));
+                        }
+                        //Contact Must be added both ways
+                        Contact contact = new Contact();
+                        contact.setAccountRecieve(userRef.getUid());
+                        contact.setAccountSend(contactUser.getUid());
+
+                        Contact contactReverse = new Contact();
+                        contactReverse.setAccountSend(userRef.getUid());
+                        contactReverse.setAccountRecieve(contactUser.getUid());
+
+                        Task<DocumentReference> addTask1 = db.collection("contacts").add(contactReverse);
+                        Task<DocumentReference> addTask2 = db.collection("contacts").add(contact);
+
+                        Tasks.whenAllSuccess(addTask1, addTask2)
+                                .addOnSuccessListener(new OnSuccessListener<List<Object>>() {
+                                    @Override
+                                    public void onSuccess(List<Object> list) {
+                                        // Both tasks succeeded
+                                        DocumentReference docRef1 = (DocumentReference) list.get(0);
+                                        DocumentReference docRef2 = (DocumentReference) list.get(1);
+
+                                        // Log success or perform further actions
+                                        Log.d(TAG, "DocumentSnapshot added with ID: " + docRef1.getId());
+                                        Log.d(TAG, "DocumentSnapshot added with ID: " + docRef2.getId());
+
+                                        db.collection("users").whereEqualTo(FieldPath.documentId(), contactUser.getUid()).get()
+                                                .addOnCompleteListener(task -> {
+                                                    if (task.isSuccessful()) {
+                                                        User userRef = new User();
+                                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                                            userRef = (document.toObject(User.class));
+                                                        }
+                                                        contacts.add(userRef.getEmail());
+
+                                                        setChanged();
+                                                        notifyObservers("ContactAdapter");
+                                                    } else {
+                                                        Log.d(TAG, "Error getting documents: ", task.getException());
+                                                    }
+                                                });
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        // Handle failure
+                                        Log.w(TAG, "Error adding documents", e);
+                                    }
+                                });
+                    } else {
+                        Log.d(TAG, "Error getting documents: ", task.getException());
+                    }
+                });
+    }
+
 }

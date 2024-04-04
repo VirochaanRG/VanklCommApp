@@ -1,4 +1,4 @@
-package com.example.vanklcommapp;
+package com.example.vanklcommapp.Controllers.Adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vanklcommapp.Models.DataTypes.Message;
+import com.example.vanklcommapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -24,14 +25,12 @@ public class MessageChannelAdapter extends RecyclerView.Adapter<MessageChannelAd
     public MessageChannelAdapter(Context context, List<Message> mData) {
         this.mData = mData;
         this.mInflater = LayoutInflater.from(context);
-        System.out.println("Adapter");
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = mInflater.inflate(R.layout.message, parent, false);
-        System.out.println("Viewholder Created");
         return new ViewHolder(view);
     }
 
@@ -40,7 +39,6 @@ public class MessageChannelAdapter extends RecyclerView.Adapter<MessageChannelAd
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser user = mAuth.getCurrentUser();
         Message message = mData.get(position);
-        System.out.println(position + ": " + message);
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         if(user.getEmail().equals(message.getAccountSend())){
             holder.messageTextRight.setText(message.getContent());
@@ -81,7 +79,6 @@ public class MessageChannelAdapter extends RecyclerView.Adapter<MessageChannelAd
             messageTimeRight = itemView.findViewById(R.id.message_time_right);
             messageTextRight = itemView.findViewById(R.id.message_text_right);
             itemView.setOnClickListener(this);
-            System.out.println("Setup Recylcer");
         }
 
         @Override
