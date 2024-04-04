@@ -1,4 +1,4 @@
-package com.example.vanklcommapp.Controllers;
+package com.example.vanklcommapp.Controllers.AccountControllers;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -12,7 +12,10 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.vanklcommapp.Application.SystemManagement;
+import com.example.vanklcommapp.Controllers.AccountControllers.CreateAccount;
+import com.example.vanklcommapp.Controllers.MainActivity;
 import com.example.vanklcommapp.Models.AccountModel;
+import com.example.vanklcommapp.Models.ContactModel;
 import com.example.vanklcommapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -24,10 +27,11 @@ public class Login extends AppCompatActivity implements Observer {
     private EditText emailTextView, passwordTextView;
     private Button Btn, BtnCreate;
     private ProgressBar progressBar;
-    private AccountModel model;
+    private AccountModel accountModel;
 
     private FirebaseAuth mAuth;
     private FirebaseUser user;
+    ContactModel model;
     @Override
     protected void onStart() {
 
@@ -42,15 +46,19 @@ public class Login extends AppCompatActivity implements Observer {
         setContentView(R.layout.activity_login);
 
         //App Launcher so setting Account Model in System
-        model = new AccountModel();
-        ((SystemManagement) getApplication()).setModelAccount(model);
-        model = ((SystemManagement) getApplication()).getModelAccount();
-
+        accountModel = ((SystemManagement) getApplication()).getModelAccount();
+        System.out.println("Account Model Init: " + accountModel);
+        if(accountModel == null){
+            accountModel = new AccountModel();
+            ((SystemManagement) getApplication()).setModelAccount(accountModel);
+            accountModel = ((SystemManagement) getApplication()).getModelAccount();
+        }
         //Subscribing to model
-        model.addObserver(this);
+        accountModel.addObserver(this);
+
 
         //Getting the user from the model
-        FirebaseUser user = model.user;
+        FirebaseUser user = accountModel.user;
 
         if(user != null){
             goMain();
@@ -123,7 +131,7 @@ public class Login extends AppCompatActivity implements Observer {
             return;
         }
         //Call the Model for the login functionality
-        model.login(email, password);
+        accountModel.login(email, password);
 
 
     }
@@ -131,7 +139,7 @@ public class Login extends AppCompatActivity implements Observer {
     @Override
     public void update(Observable o, Object arg) {
         //Recieve notification from AccountModel
-        user = model.user;
+        user = accountModel.user;
         System.out.println("LoginEntry");
         //IF user not null and LoginSuccess message then Login
         if(user != null && ((String)arg).equals("LoginSuccess")) {

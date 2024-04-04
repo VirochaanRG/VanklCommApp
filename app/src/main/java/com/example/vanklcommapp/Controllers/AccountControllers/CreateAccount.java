@@ -1,4 +1,4 @@
-package com.example.vanklcommapp.Controllers;
+package com.example.vanklcommapp.Controllers.AccountControllers;
 
 import static android.content.ContentValues.TAG;
 

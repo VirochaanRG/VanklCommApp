@@ -111,5 +111,12 @@ public class AccountModel extends Observable {
                     }
                 });
     }
+    public void logout(){
+        FirebaseAuth.getInstance().signOut();
+        user = mAuth.getCurrentUser();
+        System.out.println("Logout: " + user);
+        setChanged();
+        notifyObservers("Logout");
+    }
 }
 
