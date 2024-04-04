@@ -23,7 +23,7 @@
             android:name=".MessageContactChooser"
             android:exported="false" />
         <activity
-            android:name=".ContactList"
+            android:name=".Controllers.ContactControllers.ContactList"
             android:exported="false" />
         <activity
             android:name=".ContactAdder"
@@ -34,10 +34,10 @@
             android:label="@string/title_activity_main"
             android:theme="@style/Theme.Material3.Dark" />
         <activity
-            android:name=".Controllers.CreateAccount"
+            android:name=".Controllers.AccountControllers.CreateAccount"
             android:exported="false" />
         <activity
-            android:name=".Controllers.Login"
+            android:name=".Controllers.AccountControllers.Login"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

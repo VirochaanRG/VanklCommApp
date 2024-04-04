@@ -13,7 +13,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.SearchView;
 
+import com.example.vanklcommapp.Application.SystemManagement;
 import com.example.vanklcommapp.Controllers.MainActivity;
+import com.example.vanklcommapp.Models.AccountModel;
+import com.example.vanklcommapp.Models.ContactModel;
 import com.example.vanklcommapp.Models.DataTypes.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -22,8 +25,10 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Observable;
+import java.util.Observer;
 
-public class ContactAdder extends AppCompatActivity {
+public class ContactAdder extends AppCompatActivity implements Observer {
     private FirebaseFirestore db;
     FirebaseAuth mAuth;
     FirebaseUser userCur;
@@ -31,19 +36,38 @@ public class ContactAdder extends AppCompatActivity {
     private MyAdapter adapter;
     private ArrayList<User> userList;
     Button buttonReturn;
+
+    AccountModel accountModel;
+    ContactModel contactModel;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //INIT activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact);
+
+        //Retrieve Models
+        accountModel = ((SystemManagement) getApplication()).getModelAccount();
+        contactModel = ((SystemManagement) getApplication()).getModelContact();
+
+        contactModel.addObserver(this);
+
+
         mAuth = FirebaseAuth.getInstance();
         userCur = mAuth.getCurrentUser();
         db = FirebaseFirestore.getInstance();
-        recyclerView = findViewById(R.id.recyclerView);
+
+        //
+
         userList = new ArrayList<>();
-        adapter = new MyAdapter(userList);
+
         System.out.println(userCur);
+
+        //Set Up Recycler View for viewing in search
+        recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        adapter = new MyAdapter(userList);
         recyclerView.setAdapter(adapter);
         buttonReturn = findViewById(R.id.returnMain);
         SearchView searchView = findViewById(R.id.searchView);
@@ -86,5 +110,10 @@ public class ContactAdder extends AppCompatActivity {
                         Log.d(TAG, "Error getting documents: ", task.getException());
                     }
                 });
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+
     }
 }
