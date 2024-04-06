@@ -1,6 +1,9 @@
 package com.example.vanklcommapp.Models.DataTypes;
 
+import com.google.firebase.firestore.Blob;
 import com.google.firebase.firestore.DocumentId;
+
+import java.util.List;
 
 public class User {
 
@@ -53,6 +56,16 @@ public class User {
         // Required empty public constructor
     }
 
+
+    public Blob getKey() {
+        return Key;
+    }
+
+    public void setKey(Blob key) {
+        Key = key;
+    }
+
+    private Blob Key;
 
     public void setUsername(String username) {
         this.username = username;
