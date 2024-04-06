@@ -23,4 +23,11 @@
         app:layout_constraintStart_toStartOf="@+id/mobile_list"
         app:layout_constraintBottom_toBottomOf="parent"
         android:text="Go to Home"/>
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintStart_toEndOf="@id/btnList"
+        app:layout_constraintBottom_toBottomOf="@id/btnList"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

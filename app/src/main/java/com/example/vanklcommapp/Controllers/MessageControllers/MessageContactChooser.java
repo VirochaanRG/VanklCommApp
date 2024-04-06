@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.vanklcommapp.Application.SystemManagement;
@@ -24,6 +25,7 @@ public class MessageContactChooser extends AppCompatActivity implements Observer
     ContactModel contactModel;
     ListView listView;
     MessageModel messageModel;
+    ProgressBar progressBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +40,7 @@ public class MessageContactChooser extends AppCompatActivity implements Observer
         contactModel.showContactList();
         messageModel = ((SystemManagement) getApplication()).getModelMessage();
         messageModel.addObserver(this);
+        progressBar = findViewById(R.id.progressBar);
         buttonHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -52,6 +55,8 @@ public class MessageContactChooser extends AppCompatActivity implements Observer
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 TextView c = view.findViewById(R.id.label);
                 String messageVal = c.getText().toString();
+
+                progressBar.setVisibility(View.VISIBLE);
                 messageModel.authenticate(messageVal);
             }
         });
@@ -61,6 +66,7 @@ public class MessageContactChooser extends AppCompatActivity implements Observer
         if (arg.equals("ContactSuccess")){
             setContactListValues();
         } else if (arg.equals("AuthenticateSuccess")) {
+            progressBar.setVisibility(View.GONE);
             Intent intent = new Intent(getApplicationContext(), MessageChannel.class);
             intent.putExtra("contact", messageModel.targetEmail);
             startActivity(intent);
