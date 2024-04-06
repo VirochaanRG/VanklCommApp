@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.example.vanklcommapp.Application.SystemManagement;
 import com.example.vanklcommapp.Controllers.MainActivity;
 import com.example.vanklcommapp.Models.ContactModel;
+import com.example.vanklcommapp.Models.MessageModel;
 import com.example.vanklcommapp.R;
 
 import java.util.Observable;
@@ -22,7 +23,7 @@ import java.util.Observer;
 public class MessageContactChooser extends AppCompatActivity implements Observer {
     ContactModel contactModel;
     ListView listView;
-
+    MessageModel messageModel;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,9 +35,9 @@ public class MessageContactChooser extends AppCompatActivity implements Observer
 
         Button buttonHome;
         buttonHome = findViewById(R.id.btnList);
-
         contactModel.showContactList();
-
+        messageModel = ((SystemManagement) getApplication()).getModelMessage();
+        messageModel.addObserver(this);
         buttonHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -49,15 +50,9 @@ public class MessageContactChooser extends AppCompatActivity implements Observer
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getApplicationContext(), MessageChannel.class);
                 TextView c = view.findViewById(R.id.label);
-                String playerChanged = c.getText().toString();
-
-                intent.putExtra("contact", playerChanged);
-                if(intent != null){
-                    startActivity(intent);
-                }
-                finish();
+                String messageVal = c.getText().toString();
+                messageModel.authenticate(messageVal);
             }
         });
     }
@@ -65,6 +60,11 @@ public class MessageContactChooser extends AppCompatActivity implements Observer
     public void update(Observable o, Object arg) {
         if (arg.equals("ContactSuccess")){
             setContactListValues();
+        } else if (arg.equals("AuthenticateSuccess")) {
+            Intent intent = new Intent(getApplicationContext(), MessageChannel.class);
+            intent.putExtra("contact", messageModel.targetEmail);
+            startActivity(intent);
+            finish();
         }
     }
     public void setContactListValues(){

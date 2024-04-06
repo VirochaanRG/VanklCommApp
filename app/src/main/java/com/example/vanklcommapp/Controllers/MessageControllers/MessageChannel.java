@@ -66,6 +66,7 @@ public class MessageChannel extends AppCompatActivity implements Observer {
             @Override
             public void onClick(View v) {
                 //Intent to Main Activity
+                messageModel.deauthenticate();
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
                 finish();

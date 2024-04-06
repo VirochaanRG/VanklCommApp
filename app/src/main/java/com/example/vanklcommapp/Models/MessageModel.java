@@ -2,12 +2,20 @@ package com.example.vanklcommapp.Models;
 
 import static android.content.ContentValues.TAG;
 
+
+
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.vanklcommapp.KDC.NetworkAcess.AuthenticationNetworkTask;
+import com.example.vanklcommapp.KDC.Decrypter;
+import com.example.vanklcommapp.KDC.Encrypter;
+import com.example.vanklcommapp.Models.DataTypes.EncryptedMessage;
 import com.example.vanklcommapp.Models.DataTypes.Message;
+import com.example.vanklcommapp.Models.DataTypes.User;
+import com.example.vanklcommapp.KDC.NetworkAcess.NetworkTask;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -16,20 +24,32 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Observable;
+import java.util.Random;
+import java.util.concurrent.ExecutionException;
+
 
 public class MessageModel extends Observable {
         public FirebaseAuth mAuth;
         public FirebaseUser user;
         public FirebaseFirestore db;
-        public List<Message> currentChat;
+        public List<EncryptedMessage> currentChat;
 
+        public String currentNonce;
+
+        public String sessionKey;
+        public String targetEmail;
         public MessageModel(){
             mAuth = FirebaseAuth.getInstance();
             db = FirebaseFirestore.getInstance();
@@ -51,9 +71,137 @@ public class MessageModel extends Observable {
                             Log.w(TAG, "Error adding document", e);
                         }
                     });
+            EncryptedMessage eMsg = new EncryptedMessage();
+            eMsg.setAccountSend(m.getAccountSend());
+            eMsg.setAccountRecieve(m.getAccountRecieve());
+            String ecContent = Encrypter.encrypt(sessionKey, m.getContent());
+            eMsg.setContent(ecContent);
+            eMsg.setTimestamp(m.getTimestamp());
+            eMsg.setSessionKey(sessionKey);
+
+            db.collection("encryptedMessages").add(eMsg)
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error adding document", e);
+                        }
+                    });
         }
+        public void authenticate(String target){
+                db.collection("users").whereEqualTo("email", user.getEmail()).get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                User userDoc = null;
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    userDoc = document.toObject(User.class);
+                                }
+                                System.out.println(userDoc.getKey());
+                                byte[] bA = userDoc.getKey().toBytes();
+                                System.out.println(Encrypter.bytesToHex(bA));
+                                String key = Encrypter.bytesToHex(bA);
+                                Random rand = new Random();
+                                int nonce = rand.nextInt(65555);
+                                String nonceVal = Integer.toString(nonce);
+                                this.currentNonce = nonceVal;
+                                this.targetEmail = target;
+                                // URL to which the request will be sent
+                                String url = "https://vanklwebserver.onrender.com/authenticate?email=" + user.getEmail() + "&target="+target + "&nonce=" + nonceVal;
+                                System.out.println(url);
+                                NetworkTask nt = new AuthenticationNetworkTask();
+                                nt.execute(url);
+                                try {
+                                    String result = nt.get();
+                                    System.out.println(key);
+                                    try{
+                                        // Parse JSON string
+                                        JSONObject jsonObject = new JSONObject(result);
+                                        String header = jsonObject.getString("header");
+                                        String sessionKeyValue = jsonObject.getString("session_key");
+                                        if(header.equals("New")){
+                                            // Extract each value
+                                            String nonceValue = jsonObject.getString("nonce");
+
+                                            String targetValue = jsonObject.getString("target");
+                                            String senderValue = jsonObject.getString("sender");
+
+                                            // Print extracted values
+                                            System.out.println("Nonce: " + nonceValue);
+                                            System.out.println("Session Key: " + sessionKeyValue);
+                                            System.out.println("Target: " + targetValue);
+                                            System.out.println("Sender: " + senderValue);
+
+                                            this.sessionKey = sessionKeyValue;
+
+                                            String dcNonce = Decrypter.decrypt(key, nonceValue);
+                                            String dcTarget= Decrypter.decrypt(key, targetValue);
+
+                                            System.out.println("Decrypted Nonce: " + Decrypter.decrypt(key, nonceValue));
+                                            System.out.println("Decrypted Target: " + Decrypter.decrypt(key, targetValue));
+
+                                            if(Objects.equals(dcNonce, this.currentNonce) && Objects.equals(dcTarget, this.targetEmail)){
+                                                System.out.println("Authentication Stage 1 is successful");
+                                                authenticateStage2(senderValue, dcTarget);
+                                            } else {
+                                                System.out.println("Not successful");
+                                            }
+                                        } else {
+                                            System.out.println("Session key exists. Session is Open");
+                                            this.sessionKey = sessionKeyValue;
+                                            setChanged();
+                                            notifyObservers("AuthenticateSuccess");
+                                        }
+
+                                    }
+                                    catch(JSONException e){
+                                        System.out.println("JSON ERROR");
+                                    }
+                                } catch (ExecutionException e) {
+                                    throw new RuntimeException(e);
+                                } catch (InterruptedException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            } else {
+                                Log.d(TAG, "Error getting documents: ", task.getException());
+                            }
+                        });
+        }
+
+        public void authenticateStage2(String sender, String target){
+            //Check If B is B
+            db.collection("users").whereEqualTo("email", target).get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            User userDoc = null;
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                userDoc = document.toObject(User.class);
+                            }
+                            byte[] bA = userDoc.getKey().toBytes();
+                            String key = Encrypter.bytesToHex(bA);
+                            String dcSender = Decrypter.decrypt(key, sender);
+                            if(dcSender.equals(user.getEmail())){
+                                System.out.println("Other User is also Authenticated");
+                                setChanged();
+                                notifyObservers("AuthenticateSuccess");
+                            } else {
+                                System.out.println("Authentication Error");
+                            }
+                            //Notify Observers that a user exists
+
+
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    });
+        }
+
         public void returnChannelMessages(String contactEmail){
-            db.collection("messages")
+            db.collection("encryptedMessages")
                     .addSnapshotListener(new EventListener<QuerySnapshot>()
                     {
                         @Override
@@ -64,16 +212,16 @@ public class MessageModel extends Observable {
                                 return;
                             }
                             currentChat.clear();
-                            List<Message> chats = snapshot.toObjects(Message.class);
-                            for(Message s: chats){
+                            List<EncryptedMessage> chats = snapshot.toObjects(EncryptedMessage.class);
+                            for(EncryptedMessage s: chats){
                                 if((s.getAccountRecieve().equals(user.getEmail()) && s.getAccountSend().equals(contactEmail)) || (s.getAccountSend().equals(user.getEmail()) && s.getAccountRecieve().equals(contactEmail))){
                                     currentChat.add(s);
                                 }
                             }
                             System.out.println("Final: " + currentChat);
-                            Collections.sort(currentChat, new Comparator<Message>() {
+                            Collections.sort(currentChat, new Comparator<EncryptedMessage>() {
                                 @Override
-                                public int compare(Message m1, Message m2) {
+                                public int compare(EncryptedMessage m1, EncryptedMessage m2) {
                                     return m1.getTimestamp().compareTo(m2.getTimestamp());
                                 }
                             });
@@ -84,4 +232,10 @@ public class MessageModel extends Observable {
                     });
         }
 
+        public void deauthenticate() {
+            NetworkTask nt = new AuthenticationNetworkTask();
+            String url = "https://vanklwebserver.onrender.com/deauthenticate?email=" + user.getEmail();
+            nt.execute(url);
+
+        }
 }
