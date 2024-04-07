@@ -13,6 +13,7 @@ import com.example.vanklcommapp.Models.DataTypes.User;
 import com.example.vanklcommapp.R;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -21,9 +22,11 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
     private List<User> userList;
     public ContactModel contactModel;
     public User contact;
-    public ContactAdapter(List<User> userList, ContactModel contactModel) {
+    public String userRole;
+    public ContactAdapter(List<User> userList, ContactModel contactModel, String userRole) {
         this.userList = userList;
         this.contactModel = contactModel;
+        this.userRole = userRole;
         contactModel.addObserver(this);
     }
 
@@ -32,7 +35,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.user_item, parent, false);
-        return new ViewHolder(view, this.userList, this.contactModel);
+        return new ViewHolder(view, this.userList, this.contactModel, this.userRole);
     }
 
     @Override
@@ -67,22 +70,36 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
     public static class ViewHolder extends RecyclerView.ViewHolder  {
         public TextView textViewName;
         public Button buttonAdd;
+        public Button buttonAdmin;
         User contactUser;
 
         ContactModel contactModel;
-        public ViewHolder(@NonNull View itemView, List<User> userList, ContactModel contactModel) {
+        public ViewHolder(@NonNull View itemView, List<User> userList, ContactModel contactModel, String userRole) {
             super(itemView);
             //Init View componenets
             System.out.println("In View Holder");
             textViewName = itemView.findViewById(R.id.textViewName);
             buttonAdd = itemView.findViewById(R.id.buttonAdd);
+            buttonAdmin = itemView.findViewById(R.id.buttonAdmin);
             this.contactModel = contactModel;
             this.contactUser = userList.get(0);
+            System.out.println(userRole);
+            if(!Objects.equals(userRole, "admin")){
+                buttonAdmin.setVisibility(View.GONE);
+                buttonAdmin.setEnabled(false);
+            }
             buttonAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     System.out.println(contactUser.getEmail());
                     contactModel.addContact(contactUser);
+                }
+            });
+            buttonAdmin.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    System.out.println(contactUser.getEmail());
+                    contactModel.makeAdmin(contactUser);
                 }
             });
         }

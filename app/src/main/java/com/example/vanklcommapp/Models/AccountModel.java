@@ -34,6 +34,7 @@ public class AccountModel extends Observable {
     public FirebaseAuth mAuth;
     public FirebaseUser user;
     public FirebaseFirestore db;
+    public User currentUser;
     public AccountModel() {
         //Init Firebase Utils
         mAuth = FirebaseAuth.getInstance();
@@ -41,6 +42,23 @@ public class AccountModel extends Observable {
         user = mAuth.getCurrentUser();
         System.out.println("Account Model: " + user);
     }
+    public void getUser(){
+        db.collection("users").whereEqualTo("email", user.getEmail()).get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        User userDoc = null;
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            userDoc = document.toObject(User.class);
+                        }
+                        this.currentUser = userDoc;
+                        setChanged();
+                        notifyObservers("RoleUpdated");
+                    } else {
+                        Log.d(TAG, "Error getting documents: ", task.getException());
+                    }
+                });
+    }
+
     public void testServer(){
         db.collection("users").whereEqualTo("email", user.getEmail()).get()
                 .addOnCompleteListener(task -> {

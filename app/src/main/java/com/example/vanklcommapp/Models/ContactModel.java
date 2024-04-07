@@ -20,7 +20,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
@@ -207,4 +209,34 @@ public class ContactModel extends Observable {
                 });
     }
 
+    public void makeAdmin(User contactUser) {
+        db.collection("users")
+                .whereEqualTo(FieldPath.documentId(), contactUser.getUid())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            User userRef = document.toObject(User.class);
+
+                            // Update the desired field
+                            Map<String, Object> updates = new HashMap<>();
+                            updates.put("role", "admin"); // Replace "fieldName" and "newValue" with your actual field name and new value
+
+                            // Perform the update
+                            db.collection("users")
+                                    .document(document.getId())
+                                    .update(updates)
+                                    .addOnSuccessListener(aVoid -> {
+                                        System.out.println("Success");
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        // Handle errors
+                                        Log.e(TAG, "Error updating user field", e);
+                                    });
+                        }
+                    } else {
+                        Log.d(TAG, "Error getting documents: ", task.getException());
+                    }
+                });
+    }
 }

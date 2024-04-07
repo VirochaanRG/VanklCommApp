@@ -14,6 +14,7 @@ import com.example.vanklcommapp.Controllers.ContactControllers.ContactList;
 import com.example.vanklcommapp.Controllers.AccountControllers.Login;
 import com.example.vanklcommapp.Controllers.MessageControllers.MessageContactChooser;
 import com.example.vanklcommapp.Models.AccountModel;
+import com.example.vanklcommapp.Models.BroadcastModel;
 import com.example.vanklcommapp.Models.ContactModel;
 import com.example.vanklcommapp.Models.MessageModel;
 import com.example.vanklcommapp.R;
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
     Button buttonMessage;
     ContactModel contactModel;
     MessageModel messageModel;
+    BroadcastModel broadcastModel;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //Init activity
@@ -49,15 +51,16 @@ public class MainActivity extends AppCompatActivity implements Observer {
         buttonLogout = findViewById(R.id.logout);
         buttonContact = findViewById(R.id.contact);
         buttonMessage = findViewById(R.id.message);
-
+        Button buttonBroadcast = findViewById(R.id.btn_broadcast);
         //Get account model
         accountModel = ((SystemManagement) getApplication()).getModelAccount();
         user = accountModel.user;
         accountModel.addObserver(this);
-
+        accountModel.getUser();
         //Initialize other models if they are not null
         contactModel = ((SystemManagement) getApplication()).getModelContact();
         messageModel = ((SystemManagement) getApplication()).getModelMessage();
+        broadcastModel = ((SystemManagement) getApplication()).getModelBroadcast();
         if (contactModel == null){
             contactModel = new ContactModel();
             ((SystemManagement) getApplication()).setModelContact(contactModel);
@@ -67,6 +70,11 @@ public class MainActivity extends AppCompatActivity implements Observer {
             messageModel = new MessageModel();
             ((SystemManagement) getApplication()).setModelMessage(messageModel);
             messageModel = ((SystemManagement) getApplication()).getModelMessage();
+        }
+        if (broadcastModel == null){
+            broadcastModel = new BroadcastModel();
+            ((SystemManagement) getApplication()).setModelBroadcast(broadcastModel);
+            broadcastModel = ((SystemManagement) getApplication()).getModelBroadcast();
         }
         contactModel.addObserver(this);
 
@@ -82,6 +90,14 @@ public class MainActivity extends AppCompatActivity implements Observer {
             @Override
             public void onClick(View v) {
                 accountModel.logout();
+            }
+        });
+        buttonBroadcast.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), BroadcastChannel.class);
+                startActivity(intent);
+                finish();
             }
         });
         buttonContact.setOnClickListener(new View.OnClickListener() {

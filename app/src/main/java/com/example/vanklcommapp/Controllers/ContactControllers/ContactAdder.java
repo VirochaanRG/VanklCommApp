@@ -55,7 +55,7 @@ public class ContactAdder extends AppCompatActivity implements Observer {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        adapter = new ContactAdapter(contactModel.userList, contactModel);
+        adapter = new ContactAdapter(contactModel.userList, contactModel, accountModel.currentUser.getRole());
         recyclerView.setAdapter(adapter);
         buttonReturn = findViewById(R.id.returnMain);
         SearchView searchView = findViewById(R.id.searchView);

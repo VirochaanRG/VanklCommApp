@@ -15,6 +15,13 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/buttonAdmin"
+        android:text="Make Admin"
+        android:layout_toLeftOf="@+id/buttonAdd"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:id="@+id/buttonAdd"
         android:text="Add Contact"
         android:layout_alignParentEnd="true"
