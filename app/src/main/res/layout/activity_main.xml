@@ -7,38 +7,72 @@
     android:orientation="vertical"
     android:fitsSystemWindows="true"
     android:gravity="center"
+    android:background="@color/teal_primary"
     tools:context=".Controllers.MainActivity">
 
+    <!-- User Details TextView -->
     <TextView
         android:id="@+id/user_details"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Hello World!"
-        />
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/logout"
-        android:text="Logout"
-        />
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/contact"
-        android:text="Contacts"
-        />
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/message"
-        android:text="Messaging"
-        />
-    <Button
-        android:id="@+id/btn_broadcast"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Broadcast"
-        android:layout_marginBottom="24dp"
-        />
-</LinearLayout>
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:layout_marginTop="24dp"/>
 
+    <!-- Logout Button -->
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp">
+
+        <ImageButton
+            android:id="@+id/logout"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/logout"
+            android:background="@android:color/transparent"
+            android:contentDescription="Logout Button"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Logout"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:layout_centerInParent="true"/>
+
+    </RelativeLayout>
+
+
+    <!-- Contacts Button -->
+    <ImageButton
+        android:id="@+id/contact"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:src="@drawable/contacts"
+        android:background="@android:color/transparent"
+        android:contentDescription="Contacts Button"
+        android:layout_marginTop="24dp"/>
+
+    <!-- Messaging Button -->
+    <ImageButton
+        android:id="@+id/message"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:src="@drawable/messaging"
+        android:background="@android:color/transparent"
+        android:contentDescription="Messaging Button"
+        android:layout_marginTop="24dp"/>
+
+    <!-- Broadcast Button -->
+    <ImageButton
+        android:id="@+id/btn_broadcast"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:src="@drawable/broadcast"
+        android:background="@android:color/transparent"
+        android:contentDescription="Broadcast Button"
+        android:layout_marginTop="24dp"/>
+
+</LinearLayout>

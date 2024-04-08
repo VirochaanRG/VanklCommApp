@@ -6,7 +6,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton; // Import ImageButton class
 import android.widget.TextView;
 
 import com.example.vanklcommapp.Application.SystemManagement;
@@ -26,17 +26,19 @@ import java.util.Observer;
 
 public class MainActivity extends AppCompatActivity implements Observer {
 
-
     TextView textView;
-    Button buttonLogout;
-    Button buttonContact;
+    ImageButton buttonLogout; // Change Button to ImageButton
+    ImageButton buttonContact; // Change Button to ImageButton
+    ImageButton buttonMessage; // Change Button to ImageButton
+    ImageButton buttonBroadcast; // Change Button to ImageButton
+
     FirebaseAuth mAuth;
     FirebaseUser user;
     AccountModel accountModel;
-    Button buttonMessage;
     ContactModel contactModel;
     MessageModel messageModel;
     BroadcastModel broadcastModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //Init activity
@@ -51,13 +53,15 @@ public class MainActivity extends AppCompatActivity implements Observer {
         buttonLogout = findViewById(R.id.logout);
         buttonContact = findViewById(R.id.contact);
         buttonMessage = findViewById(R.id.message);
-        Button buttonBroadcast = findViewById(R.id.btn_broadcast);
-        //Get account model
+        buttonBroadcast = findViewById(R.id.btn_broadcast);
+
+        // Get account model
         accountModel = ((SystemManagement) getApplication()).getModelAccount();
         user = accountModel.user;
         accountModel.addObserver(this);
         accountModel.getUser();
-        //Initialize other models if they are not null
+
+        // Initialize other models if they are not null
         contactModel = ((SystemManagement) getApplication()).getModelContact();
         messageModel = ((SystemManagement) getApplication()).getModelMessage();
         broadcastModel = ((SystemManagement) getApplication()).getModelBroadcast();
@@ -78,14 +82,14 @@ public class MainActivity extends AppCompatActivity implements Observer {
         }
         contactModel.addObserver(this);
 
-        //If user is null return to Login else show the users Email and UID
+        // If user is null return to Login else show the users Email and UID
         if (user == null){
             returnLogin();
         } else {
             textView.setText(user.getEmail() + " " + user.getUid());
         }
 
-        //Listeners for the different buttons and routing to different views
+        // Listeners for the different buttons and routing to different views
         buttonLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,9 +116,9 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 goMessaging();
             }
         });
-
     }
-    //Functions to intent to required view
+
+    // Functions to intent to required view
     private void goMessaging() {
         Intent intent = new Intent(getApplicationContext(), MessageContactChooser.class);
         startActivity(intent);
