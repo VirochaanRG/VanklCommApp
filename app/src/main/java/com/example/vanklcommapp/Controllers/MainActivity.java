@@ -1,5 +1,6 @@
 package com.example.vanklcommapp.Controllers;
 
+
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -38,7 +39,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
     ContactModel contactModel;
     MessageModel messageModel;
     BroadcastModel broadcastModel;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //Init activity
@@ -82,11 +82,11 @@ public class MainActivity extends AppCompatActivity implements Observer {
         }
         contactModel.addObserver(this);
 
-        // If user is null return to Login else show the users Email and UID
+        //If user is null return to Login else show the users Email and UID
         if (user == null){
             returnLogin();
         } else {
-            textView.setText(user.getEmail() + " " + user.getUid());
+            textView.setText("Welcome User: " + user.getEmail());
         }
 
         // Listeners for the different buttons and routing to different views

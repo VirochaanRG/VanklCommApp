@@ -21,42 +21,58 @@ import javax.crypto.spec.SecretKeySpec;
 
 public abstract class NetworkTask extends AsyncTask<String, Void, String> {
 
-    public NetworkTask(){
-
+    // Constructor
+    public NetworkTask() {
+        // Default constructor
     }
+
+    // Method to perform network operations in the background
     @Override
     protected String doInBackground(String... urls) {
+        // Initialize an empty response string
         String response = "";
+        // Iterate through the provided URLs
         for (String url : urls) {
+            // Make an HTTP request and append the response to the response string
             response += makeHttpRequest(url);
         }
+        // Return the combined response from all URLs
         return response;
     }
 
+    // Method to make an HTTP request to the specified URL
     private String makeHttpRequest(String urlString) {
-        System.out.println("We are in here");
-        System.out.println(urlString);
+        // Initialize a string builder to store the response
         StringBuilder response = new StringBuilder();
         try {
+            // Create a URL object from the provided URL string
             URL url = new URL(urlString);
+            // Open a connection to the URL
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            // Get the input stream from the connection
             InputStream inputStream = connection.getInputStream();
+            // Create a buffered reader to read the input stream
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            // Read each line of the response and append it to the string builder
             String line;
             while ((line = reader.readLine()) != null) {
                 response.append(line);
             }
+            // Close the reader and disconnect the connection
             reader.close();
             connection.disconnect();
         } catch (IOException e) {
+            // Print stack trace if an IOException occurs
             e.printStackTrace();
         }
+        // Return the response as a string
         return response.toString();
     }
 
+    // Method to handle the result after the background task is completed
     @Override
     protected void onPostExecute(String result) {
+        // Print the response to the console
         System.out.println("Response: " + result);
     }
-
 }

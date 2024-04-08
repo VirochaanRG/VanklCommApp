@@ -19,16 +19,22 @@ import com.google.firebase.auth.FirebaseUser;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-public class BroadcastChannelAdapter extends RecyclerView.Adapter<BroadcastChannelAdapter.ViewHolder> {
-    private List<Broadcast> mData;
-    private LayoutInflater mInflater;
-    private ItemClickListener mClickListener;
+/*
+* This Adapter binds the Data from the Broadcast Model to the Recycler View
+*/
 
+public class BroadcastChannelAdapter extends RecyclerView.Adapter<BroadcastChannelAdapter.ViewHolder> {
+    private List<Broadcast> mData; // List of broadcast messages
+    private LayoutInflater mInflater; // Layout inflater to inflate views
+    private ItemClickListener mClickListener; // Click listener for item clicks
+
+    // Constructor to initialize the adapter with data and context
     public BroadcastChannelAdapter(Context context, List<Broadcast> mData) {
         this.mData = mData;
         this.mInflater = LayoutInflater.from(context);
     }
 
+    // Inflates the item view layout and returns a new ViewHolder
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -36,51 +42,58 @@ public class BroadcastChannelAdapter extends RecyclerView.Adapter<BroadcastChann
         return new ViewHolder(view);
     }
 
+    // Binds data to the views within the RecyclerView
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Broadcast bc = mData.get(position);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        holder.messageTextLeft.setText(bc.getContent());
-        holder.messageUserLeft.setText(bc.getAccountSend());
-        holder.messageTimeLeft.setText(dateFormat.format(bc.getTimestamp()));
-
+        Broadcast bc = mData.get(position); // Get the current broadcast message
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Date format for timestamp
+        holder.messageTextLeft.setText(bc.getContent()); // Set content of the message
+        holder.messageUserLeft.setText(bc.getAccountSend()); // Set sender's account name
+        holder.messageTimeLeft.setText(dateFormat.format(bc.getTimestamp())); // Set timestamp
     }
 
+    // Returns the total number of items in the data set
     @Override
     public int getItemCount() {
         return mData.size();
     }
 
+    // ViewHolder class to hold references to the views within the item view layout
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView messageUserLeft;
-        TextView messageTextLeft;
-        TextView messageTimeLeft;
+        TextView messageUserLeft; // TextView for user name
+        TextView messageTextLeft; // TextView for message content
+        TextView messageTimeLeft; // TextView for message timestamp
 
-
+        // Constructor to initialize the views and set click listener
         ViewHolder(View itemView) {
             super(itemView);
+
+            //Setting components by ID
             messageUserLeft = itemView.findViewById(R.id.message_user_left);
             messageTimeLeft = itemView.findViewById(R.id.message_time_left);
             messageTextLeft = itemView.findViewById(R.id.message_text_left);
             itemView.setOnClickListener(this);
         }
 
+        // Handle item clicks
         @Override
         public void onClick(View view) {
-            if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
+            if (mClickListener != null)
+                mClickListener.onItemClick(view, getAdapterPosition());
         }
     }
 
+    // Method to get a specific item from the data set
     Broadcast getItem(int id) {
         return mData.get(id);
     }
 
-    // allows clicks events to be caught
+    // Method to set the click listener
     void setClickListener(ItemClickListener itemClickListener) {
         this.mClickListener = itemClickListener;
     }
 
-    // parent activity will implement this method to respond to click events
+    // Interface for defining click listener
     public interface ItemClickListener {
         void onItemClick(View view, int position);
     }

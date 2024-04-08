@@ -56,186 +56,200 @@ public class MessageModel extends Observable {
             user = mAuth.getCurrentUser();
             currentChat = new ArrayList<>();
         }
-        public void sendMessage(Message m){
-            db.collection("messages")
-                    .add(m)
-                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                        @Override
-                        public void onSuccess(DocumentReference documentReference) {
-                            Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+    // Method to send a message and store both plaintext and encrypted versions
+    public void sendMessage(Message m){
+        // Add plaintext message to the "messages" collection
+        db.collection("messages")
+                .add(m)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error adding document", e);
+                    }
+                });
+
+        // Encrypt the message and add it to the "encryptedMessages" collection
+        EncryptedMessage eMsg = new EncryptedMessage();
+        eMsg.setAccountSend(m.getAccountSend());
+        eMsg.setAccountRecieve(m.getAccountRecieve());
+        String ecContent = Encrypter.encrypt(sessionKey, m.getContent());
+        eMsg.setContent(ecContent);
+        eMsg.setTimestamp(m.getTimestamp());
+        eMsg.setSessionKey(sessionKey);
+
+        db.collection("encryptedMessages").add(eMsg)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error adding document", e);
+                    }
+                });
+    }
+
+    // Method to authenticate the current user with a target user
+    public void authenticate(String target){
+        db.collection("users").whereEqualTo("email", user.getEmail()).get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        User userDoc = null;
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            userDoc = document.toObject(User.class);
                         }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "Error adding document", e);
-                        }
-                    });
-            EncryptedMessage eMsg = new EncryptedMessage();
-            eMsg.setAccountSend(m.getAccountSend());
-            eMsg.setAccountRecieve(m.getAccountRecieve());
-            String ecContent = Encrypter.encrypt(sessionKey, m.getContent());
-            eMsg.setContent(ecContent);
-            eMsg.setTimestamp(m.getTimestamp());
-            eMsg.setSessionKey(sessionKey);
+                        // Obtain the user's key and convert it to hex string
+                        System.out.println(userDoc.getKey());
+                        byte[] bA = userDoc.getKey().toBytes();
+                        System.out.println(Encrypter.bytesToHex(bA));
+                        String key = Encrypter.bytesToHex(bA);
 
-            db.collection("encryptedMessages").add(eMsg)
-                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                        @Override
-                        public void onSuccess(DocumentReference documentReference) {
-                            Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "Error adding document", e);
-                        }
-                    });
-        }
-        public void authenticate(String target){
-                db.collection("users").whereEqualTo("email", user.getEmail()).get()
-                        .addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                User userDoc = null;
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    userDoc = document.toObject(User.class);
-                                }
-                                System.out.println(userDoc.getKey());
-                                byte[] bA = userDoc.getKey().toBytes();
-                                System.out.println(Encrypter.bytesToHex(bA));
-                                String key = Encrypter.bytesToHex(bA);
-                                Random rand = new Random();
-                                int nonce = rand.nextInt(65555);
-                                String nonceVal = Integer.toString(nonce);
-                                this.currentNonce = nonceVal;
-                                this.targetEmail = target;
-                                // URL to which the request will be sent
-                                String url = "https://vanklwebserver.onrender.com/authenticate?email=" + user.getEmail() + "&target="+target + "&nonce=" + nonceVal;
-                                System.out.println(url);
-                                NetworkTask nt = new AuthenticationNetworkTask();
-                                nt.execute(url);
-                                try {
-                                    String result = nt.get();
-                                    System.out.println(key);
-                                    try{
-                                        // Parse JSON string
-                                        JSONObject jsonObject = new JSONObject(result);
-                                        String header = jsonObject.getString("header");
-                                        String sessionKeyValue = jsonObject.getString("session_key");
-                                        if(header.equals("New")){
-                                            // Extract each value
-                                            String nonceValue = jsonObject.getString("nonce");
+                        //Generate Random Nonce
+                        Random rand = new Random();
+                        int nonce = rand.nextInt(65555);
+                        String nonceVal = Integer.toString(nonce);
+                        this.currentNonce = nonceVal;
+                        this.targetEmail = target;
 
-                                            String targetValue = jsonObject.getString("target");
-                                            String senderValue = jsonObject.getString("sender");
+                        // URL for authentication request
+                        String url = "https://vanklwebserver.onrender.com/authenticate?email=" + user.getEmail() + "&target="+target + "&nonce=" + nonceVal;
+                        System.out.println(url);
+                        NetworkTask nt = new AuthenticationNetworkTask();
+                        nt.execute(url);
+                        try {
+                            //Get response
+                            String result = nt.get();
+                            System.out.println(key);
+                            try{
+                                // Parse JSON response
+                                JSONObject jsonObject = new JSONObject(result);
+                                String header = jsonObject.getString("header");
+                                String sessionKeyValue = jsonObject.getString("session_key");
+                                if(header.equals("New")){
+                                    // Extract details from the response
+                                    String nonceValue = jsonObject.getString("nonce");
+                                    String targetValue = jsonObject.getString("target");
+                                    String senderValue = jsonObject.getString("sender");
 
-                                            // Print extracted values
-                                            System.out.println("Nonce: " + nonceValue);
-                                            System.out.println("Session Key: " + sessionKeyValue);
-                                            System.out.println("Target: " + targetValue);
-                                            System.out.println("Sender: " + senderValue);
+                                    // Print extracted values
+                                    System.out.println("Nonce: " + nonceValue);
+                                    System.out.println("Session Key: " + sessionKeyValue);
+                                    System.out.println("Target: " + targetValue);
+                                    System.out.println("Sender: " + senderValue);
 
-                                            this.sessionKey = sessionKeyValue;
+                                    this.sessionKey = sessionKeyValue;
 
-                                            String dcNonce = Decrypter.decrypt(key, nonceValue);
-                                            String dcTarget= Decrypter.decrypt(key, targetValue);
+                                    // Decrypt nonce and target from response
+                                    String dcNonce = Decrypter.decrypt(key, nonceValue);
+                                    String dcTarget= Decrypter.decrypt(key, targetValue);
 
-                                            System.out.println("Decrypted Nonce: " + Decrypter.decrypt(key, nonceValue));
-                                            System.out.println("Decrypted Target: " + Decrypter.decrypt(key, targetValue));
+                                    System.out.println("Decrypted Nonce: " + Decrypter.decrypt(key, nonceValue));
+                                    System.out.println("Decrypted Target: " + Decrypter.decrypt(key, targetValue));
 
-                                            if(Objects.equals(dcNonce, this.currentNonce) && Objects.equals(dcTarget, this.targetEmail)){
-                                                System.out.println("Authentication Stage 1 is successful");
-                                                authenticateStage2(senderValue, dcTarget);
-                                            } else {
-                                                System.out.println("Not successful");
-                                            }
-                                        } else {
-                                            System.out.println("Session key exists. Session is Open");
-                                            this.sessionKey = sessionKeyValue;
-                                            setChanged();
-                                            notifyObservers("AuthenticateSuccess");
-                                        }
-
+                                    // Check if decrypted nonce and target match and go to stage 2
+                                    if(Objects.equals(dcNonce, this.currentNonce) && Objects.equals(dcTarget, this.targetEmail)){
+                                        System.out.println("Authentication Stage 1 is successful");
+                                        authenticateStage2(senderValue, dcTarget);
+                                    } else {
+                                        System.out.println("Not successful");
                                     }
-                                    catch(JSONException e){
-                                        System.out.println("JSON ERROR");
-                                    }
-                                } catch (ExecutionException e) {
-                                    throw new RuntimeException(e);
-                                } catch (InterruptedException e) {
-                                    throw new RuntimeException(e);
+                                } else {
+                                    //If session is already open then authentication not necessary
+                                    System.out.println("Session key exists. Session is Open");
+                                    this.sessionKey = sessionKeyValue;
+                                    setChanged();
+                                    notifyObservers("AuthenticateSuccess");
                                 }
-                            } else {
-                                Log.d(TAG, "Error getting documents: ", task.getException());
+                            }
+                            catch(JSONException e){
+                                System.out.println("JSON ERROR");
+                            }
+                        } catch (ExecutionException e) {
+                            throw new RuntimeException(e);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else {
+                        Log.d(TAG, "Error getting documents: ", task.getException());
+                    }
+                });
+    }
+
+    // Method to perform stage 2 of authentication
+    public void authenticateStage2(String sender, String target){
+        //Check if the sender is authenticated
+        db.collection("users").whereEqualTo("email", target).get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        User userDoc = null;
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            userDoc = document.toObject(User.class);
+                        }
+                        // Obtain the key of the target user and convert it to hex string
+                        byte[] bA = userDoc.getKey().toBytes();
+                        String key = Encrypter.bytesToHex(bA);
+                        // Decrypt the sender's email using the key
+                        String dcSender = Decrypter.decrypt(key, sender);
+                        // Check if the decrypted sender's email matches the current user's email
+                        if(dcSender.equals(user.getEmail())){
+                            System.out.println("Other User is also Authenticated");
+                            // Notify observers of successful authentication
+                            setChanged();
+                            notifyObservers("AuthenticateSuccess");
+                        } else {
+                            System.out.println("Authentication Error");
+                        }
+                        //Notify Observers that a user exists
+                    } else {
+                        Log.d(TAG, "Error getting documents: ", task.getException());
+                    }
+                });
+    }
+
+    // Method to retrieve encrypted messages between the current user and a specific contact
+    public void returnChannelMessages(String contactEmail){
+        // Listen for changes in encrypted messages
+        db.collection("encryptedMessages")
+                .addSnapshotListener(new EventListener<QuerySnapshot>()
+                {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot snapshot, @Nullable FirebaseFirestoreException e) {
+                        currentChat.clear();
+                        // Retrieve encrypted messages and filter for the current chat
+                        List<EncryptedMessage> chats = snapshot.toObjects(EncryptedMessage.class);
+                        for(EncryptedMessage s: chats){
+                            if((s.getAccountRecieve().equals(user.getEmail()) && s.getAccountSend().equals(contactEmail)) || (s.getAccountSend().equals(user.getEmail()) && s.getAccountRecieve().equals(contactEmail))){
+                                currentChat.add(s);
+                            }
+                        }
+                        // Sort messages by timestamp
+                        Collections.sort(currentChat, new Comparator<EncryptedMessage>() {
+                            @Override
+                            public int compare(EncryptedMessage m1, EncryptedMessage m2) {
+                                return m1.getTimestamp().compareTo(m2.getTimestamp());
                             }
                         });
-        }
+                        // Notify observers of message update
+                        setChanged();
+                        notifyObservers("MessageUpdate");
+                    }
+                });
+    }
 
-        public void authenticateStage2(String sender, String target){
-            //Check If B is B
-            db.collection("users").whereEqualTo("email", target).get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            User userDoc = null;
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                userDoc = document.toObject(User.class);
-                            }
-                            byte[] bA = userDoc.getKey().toBytes();
-                            String key = Encrypter.bytesToHex(bA);
-                            String dcSender = Decrypter.decrypt(key, sender);
-                            if(dcSender.equals(user.getEmail())){
-                                System.out.println("Other User is also Authenticated");
-                                setChanged();
-                                notifyObservers("AuthenticateSuccess");
-                            } else {
-                                System.out.println("Authentication Error");
-                            }
-                            //Notify Observers that a user exists
-
-
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                    });
-        }
-
-        public void returnChannelMessages(String contactEmail){
-            db.collection("encryptedMessages")
-                    .addSnapshotListener(new EventListener<QuerySnapshot>()
-                    {
-                        @Override
-                        public void onEvent(@Nullable QuerySnapshot snapshot, @Nullable FirebaseFirestoreException e) {
-                            if (e != null) {
-                                // Handle error
-                                //...
-                                return;
-                            }
-                            currentChat.clear();
-                            List<EncryptedMessage> chats = snapshot.toObjects(EncryptedMessage.class);
-                            for(EncryptedMessage s: chats){
-                                if((s.getAccountRecieve().equals(user.getEmail()) && s.getAccountSend().equals(contactEmail)) || (s.getAccountSend().equals(user.getEmail()) && s.getAccountRecieve().equals(contactEmail))){
-                                    currentChat.add(s);
-                                }
-                            }
-                            System.out.println("Final: " + currentChat);
-                            Collections.sort(currentChat, new Comparator<EncryptedMessage>() {
-                                @Override
-                                public int compare(EncryptedMessage m1, EncryptedMessage m2) {
-                                    return m1.getTimestamp().compareTo(m2.getTimestamp());
-                                }
-                            });
-                            setChanged();
-                            notifyObservers("MessageUpdate");
-
-                        }
-                    });
-        }
-
-        public void deauthenticate() {
-            NetworkTask nt = new AuthenticationNetworkTask();
-            String url = "https://vanklwebserver.onrender.com/deauthenticate?email=" + user.getEmail();
-            nt.execute(url);
-
-        }
+    // Method to deauthenticate the current user
+    public void deauthenticate() {
+        // Execute network task to deauthenticate
+        NetworkTask nt = new AuthenticationNetworkTask();
+        String url = "https://vanklwebserver.onrender.com/deauthenticate?email=" + user.getEmail();
+        nt.execute(url);
+    }
 }

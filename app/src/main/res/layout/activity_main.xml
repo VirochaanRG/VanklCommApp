@@ -32,7 +32,8 @@
             android:layout_height="100dp"
             android:src="@drawable/logout"
             android:background="@android:color/transparent"
-            android:contentDescription="Logout Button"/>
+            android:contentDescription="Logout Button"
+            />
 
         <TextView
             android:layout_width="wrap_content"
@@ -40,8 +41,8 @@
             android:text="Logout"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
-            android:layout_centerInParent="true"/>
-
+            android:layout_below="@id/logout"
+            android:layout_centerHorizontal="true"/>
     </RelativeLayout>
 
 
@@ -53,7 +54,9 @@
         android:src="@drawable/contacts"
         android:background="@android:color/transparent"
         android:contentDescription="Contacts Button"
-        android:layout_marginTop="24dp"/>
+        android:layout_marginTop="24dp"
+        android:scaleType="fitCenter"/>
+        />
 
     <!-- Messaging Button -->
     <ImageButton
@@ -63,7 +66,9 @@
         android:src="@drawable/messaging"
         android:background="@android:color/transparent"
         android:contentDescription="Messaging Button"
-        android:layout_marginTop="24dp"/>
+        android:layout_marginTop="24dp"
+        android:scaleType="fitCenter"/>
+        />
 
     <!-- Broadcast Button -->
     <ImageButton
@@ -73,6 +78,7 @@
         android:src="@drawable/broadcast"
         android:background="@android:color/transparent"
         android:contentDescription="Broadcast Button"
-        android:layout_marginTop="24dp"/>
+        android:layout_marginTop="24dp"
+        android:scaleType="fitCenter"/>
 
 </LinearLayout>

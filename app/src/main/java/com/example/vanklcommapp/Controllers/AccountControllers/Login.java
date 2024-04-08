@@ -20,19 +20,20 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.Observable;
 import java.util.Observer;
 
+/*
+ * Activity responsible for Logging a user into the system/
+ */
+
 public class Login extends AppCompatActivity implements Observer {
+    //Initialization of views and components
     private EditText emailTextView, passwordTextView;
     private Button Btn, BtnCreate;
     private ProgressBar progressBar;
+
+    //Account Model to be used in this app
     private AccountModel accountModel;
     private FirebaseUser user;
 
-    @Override
-    protected void onStart() {
-
-        super.onStart();
-
-    }
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -49,8 +50,10 @@ public class Login extends AppCompatActivity implements Observer {
             accountModel = ((SystemManagement) getApplication()).getModelAccount();
         }
 
+        //Ensure that everytime we reach login activity other models are set to null
         ((SystemManagement) getApplication()).setModelContact(null);
         ((SystemManagement) getApplication()).setModelMessage(null);
+        ((SystemManagement) getApplication()).setModelBroadcast(null);
 
         //Subscribing to model
         accountModel.addObserver(this);
@@ -59,14 +62,16 @@ public class Login extends AppCompatActivity implements Observer {
         //Getting the user from the model
         FirebaseUser user = accountModel.user;
 
+        //Routing to main of user is already logged in.
         if(user != null){
             goMain();
         }
 
-        // Initializing Text Views for Email and Password
+        // Finding views by ID
         emailTextView = findViewById(R.id.email);
         passwordTextView = findViewById(R.id.password);
-        //Login Button and Create Button
+
+        //Finding Login Button and Create Button by id
         Btn = findViewById(R.id.login);
         BtnCreate = findViewById(R.id.create);
 
@@ -81,6 +86,7 @@ public class Login extends AppCompatActivity implements Observer {
                 loginUserAccount();
             }
         });
+
         //Set on Click Listener on Create Account Button
         BtnCreate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,12 +96,14 @@ public class Login extends AppCompatActivity implements Observer {
             }
         });
     }
+
     //Function to intent to Main
     private void goMain(){
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(intent);
         finish();
     }
+
     //Function to intent to Create Account
     private void goCreate(){
         //Use Intent to go to Create Account View
@@ -104,9 +112,10 @@ public class Login extends AppCompatActivity implements Observer {
         finish();
     }
 
+    //Function to login user
     private void loginUserAccount()
     {
-        // show the visibility of progress bar to show loading into app
+        // Show the visibility of progress bar to show loading into app
         progressBar.setVisibility(View.VISIBLE);
 
         // Take the value of two edit texts in Strings
@@ -114,7 +123,7 @@ public class Login extends AppCompatActivity implements Observer {
         email = emailTextView.getText().toString();
         password = passwordTextView.getText().toString();
 
-        // validations for input email and password
+        // Validations for input email and password
         if (TextUtils.isEmpty(email)) {
             Toast.makeText(getApplicationContext(),
                             "Please enter email!!",
@@ -129,6 +138,7 @@ public class Login extends AppCompatActivity implements Observer {
                     .show();
             return;
         }
+
         //Call the Model for the login functionality
         accountModel.login(email, password);
 

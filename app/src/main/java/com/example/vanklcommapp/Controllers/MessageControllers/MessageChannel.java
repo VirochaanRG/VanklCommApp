@@ -24,8 +24,12 @@ import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
 
-public class MessageChannel extends AppCompatActivity implements Observer {
+/*
+ * Activity responsible for The message channel showing actual messages.
+ */
 
+public class MessageChannel extends AppCompatActivity implements Observer {
+    //Init views and components
     FirebaseUser user;
     MessageModel messageModel;
     RecyclerView recyclerView;

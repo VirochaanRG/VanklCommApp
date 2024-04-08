@@ -30,26 +30,32 @@ import java.util.concurrent.ExecutionException;
 /** @noinspection ALL*/
 public class AccountModel extends Observable {
 
-
+    // Firebase authentication and database references
     public FirebaseAuth mAuth;
     public FirebaseUser user;
     public FirebaseFirestore db;
     public User currentUser;
+
+    // Constructor initializing Firebase components
     public AccountModel() {
-        //Init Firebase Utils
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         user = mAuth.getCurrentUser();
         System.out.println("Account Model: " + user);
     }
+
+    // Method to retrieve user information from Firestore
     public void getUser(){
+        // Query Firestore for user data
         db.collection("users").whereEqualTo("email", user.getEmail()).get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         User userDoc = null;
+                        // Parse query results into User object
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             userDoc = document.toObject(User.class);
                         }
+                        // Set current user and notify observers of role update
                         this.currentUser = userDoc;
                         setChanged();
                         notifyObservers("RoleUpdated");
@@ -59,68 +65,27 @@ public class AccountModel extends Observable {
                 });
     }
 
-    public void testServer(){
-        db.collection("users").whereEqualTo("email", user.getEmail()).get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            User userDoc = document.toObject(User.class);
-                            System.out.println(userDoc.getKey());
-                            byte[] bA = userDoc.getKey().toBytes();
-                            System.out.println(bytesToHex(bA));
-                            String val = bytesToHex(bA);
-                            // URL to which the request will be sent
-                            String url = "https://vanklwebserver.onrender.com/authenticate?email=v@v.com&target=t@t.com&nonce=12345";
-                            // Create a URL object from the specified URL
-                            NetworkTask nt = new AuthenticationNetworkTask();
-                            nt.execute(url);
-                            try {
-                                String result = nt.get();
-
-                            } catch (ExecutionException e) {
-                                throw new RuntimeException(e);
-                            } catch (InterruptedException e) {
-                                throw new RuntimeException(e);
-                            }
-                            // Print response
-                        }
-
-                    } else {
-                        Log.d(TAG, "Error getting documents: ", task.getException());
-                    }
-                });
-    }
-    public static String bytesToHex(byte[] bytes) {
-        BigInteger bigInt = new BigInteger(1, bytes);
-        String hexString = bigInt.toString(16);
-        // Adjust length if necessary (prepend zeros)
-        int paddingLength = (bytes.length * 2) - hexString.length();
-        if (paddingLength > 0) {
-            return String.format("%0" + paddingLength + "d", 0) + hexString;
-        } else {
-            return hexString;
-        }
-    }
+    // Method for user login
     public void login(String email, String password){
-        //Login with Firebase Authentication
+        // Attempt to sign in using Firebase Authentication
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(
                         new OnCompleteListener<AuthResult>() {
-                            //On completion
+                            // Handle completion of login attempt
                             @Override
                             public void onComplete(
                                     @NonNull Task<AuthResult> task)
                             {
-                                //If succeeded notify required controller with Login Success message
+                                // If login is successful, notify relevant controllers
                                 if (task.isSuccessful()) {
                                     System.out.println("LoginSuccess");
-                                    //Ensure we set User after logging in and Notify Relevant observers
+                                    // Update user information and notify observers
                                     user = mAuth.getCurrentUser();
                                     setChanged();
                                     notifyObservers("LoginSuccess");
                                 }
                                 else {
-                                    // sign-in failed notify relevant observers
+                                    // Notify observers of login failure
                                     System.out.println("LoginFail");
                                     setChanged();
                                     notifyObservers("LoginFail");
@@ -128,8 +93,10 @@ public class AccountModel extends Observable {
                             }
                         });
     }
+
+    // Method for creating a new user account
     public void createAccount(String email, String password, String eid, String username){
-        // create new user and add to users database
+        // Create a new user account using Firebase Authentication
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
 
@@ -137,8 +104,7 @@ public class AccountModel extends Observable {
                     public void onComplete(@NonNull Task<AuthResult> task)
                     {
                         if (task.isSuccessful()) {
-
-                            //Create user Hashmap
+                            // Prepare user data to be added to Firestore
                             Map<String, Object> user = new HashMap<>();
                             user.put("username", username);
                             user.put("password", password);
@@ -146,14 +112,15 @@ public class AccountModel extends Observable {
                             user.put("employeeID", eid);
                             user.put("role", "employee");
 
-                            // Add a new user with a generated ID
+                            // Add user data to Firestore
                             db.collection("users")
                                     .add(user)
                                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                        //On success notify relevant observer
+                                        // Notify observers upon successful user creation
                                         @Override
                                         public void onSuccess(DocumentReference documentReference) {
                                             Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                                            // Update server to generate keys for user and notify observers of success
                                             String url = "https://vanklwebserver.onrender.com/updatedb?";
                                             url += "email=" + email;
                                             NetworkTask nt = new BasicNetworkTask();
@@ -162,12 +129,14 @@ public class AccountModel extends Observable {
                                             nt2.execute("https://vanklwebserver.onrender.com/getkeys");
                                             setChanged();
                                             notifyObservers("CreateSuccess");
+                                            // Automatically log in newly created user
                                             login(email, password);
                                         }
                                     })
                                     .addOnFailureListener(new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
+                                            // Notify observers upon failure to add user data to Firestore
                                             Log.w(TAG, "Error adding document", e);
                                             setChanged();
                                             notifyObservers("CreateFailure");
@@ -175,16 +144,21 @@ public class AccountModel extends Observable {
                                     });
                         }
                         else {
+                            // Notify observers upon failure to create user account
                             setChanged();
                             notifyObservers("CreateFailure");
                         }
                     }
                 });
     }
+
+    // Method for user logout
     public void logout(){
+        // Sign out current user
         FirebaseAuth.getInstance().signOut();
         user = mAuth.getCurrentUser();
         System.out.println("Logout: " + user);
+        // Notify observers of logout
         setChanged();
         notifyObservers("Logout");
     }

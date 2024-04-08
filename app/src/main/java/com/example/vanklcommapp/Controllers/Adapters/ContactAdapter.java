@@ -17,19 +17,35 @@ import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
 
+/*
+ * This class is an Adapter for a RecyclerView used to display contacts.
+ * It binds data from the Contact model to the corresponding views in the RecyclerView.
+ * It also implements the Observer interface to observe changes in the ContactModel to dynamically update view.
+ */
+
+
 public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHolder> implements Observer{
 
+    // List of users to display as contacts
     private List<User> userList;
+
+    // ContactModel instance to manage contacts
     public ContactModel contactModel;
-    public User contact;
+
+    // Role of the current user
     public String userRole;
+
+    // Constructor to initialize the adapter with data, ContactModel, and user role
     public ContactAdapter(List<User> userList, ContactModel contactModel, String userRole) {
         this.userList = userList;
         this.contactModel = contactModel;
         this.userRole = userRole;
+
+        // Register the adapter as an observer of the ContactModel
         contactModel.addObserver(this);
     }
 
+    // Inflates the item view layout and returns a new ViewHolder
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -38,13 +54,15 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
         return new ViewHolder(view, this.userList, this.contactModel, this.userRole);
     }
 
+    // Binds data to the views within the RecyclerView
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        System.out.println(userList);
+        //Get the current contact based on the position
         holder.contactUser = userList.get(0);
         User contactUser = userList.get(position);
         holder.textViewName.setText(contactUser.getUsername() + ": " + contactUser.getEmail());
 
+        // Enable or disable the add button based on whether the contact is already added
         if(contactModel.contacts.contains(contactUser.getEmail())){
             holder.buttonAdd.setEnabled(false);
             holder.buttonAdd.setText("Added");
@@ -54,51 +72,55 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
         }
     }
 
+    // Returns the total number of items in the data set
     @Override
     public int getItemCount() {
         return userList.size();
     }
 
+    // Update method from the Observer interface to observe changes in the ContactModel
     @Override
     public void update(Observable o, Object arg) {
         if(arg.equals("ContactAdapter")){
-            System.out.println(contactModel.contacts);
             this.notifyDataSetChanged();
         }
     }
 
+    // ViewHolder class to hold references to the views within the item view layout
     public static class ViewHolder extends RecyclerView.ViewHolder  {
         public TextView textViewName;
         public Button buttonAdd;
         public Button buttonAdmin;
         User contactUser;
-
         ContactModel contactModel;
+
+        // Constructor to initialize the views and set click listeners
         public ViewHolder(@NonNull View itemView, List<User> userList, ContactModel contactModel, String userRole) {
             super(itemView);
-            //Init View componenets
-            System.out.println("In View Holder");
             textViewName = itemView.findViewById(R.id.textViewName);
             buttonAdd = itemView.findViewById(R.id.buttonAdd);
             buttonAdmin = itemView.findViewById(R.id.buttonAdmin);
             this.contactModel = contactModel;
             this.contactUser = userList.get(0);
-            System.out.println(userRole);
+
+            // Set visibility and enable state of admin button based on user role
             if(!Objects.equals(userRole, "admin")){
                 buttonAdmin.setVisibility(View.GONE);
                 buttonAdmin.setEnabled(false);
             }
+
+            // Click listener for adding a contact
             buttonAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    System.out.println(contactUser.getEmail());
                     contactModel.addContact(contactUser);
                 }
             });
+
+            // Click listener for making a user admin
             buttonAdmin.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    System.out.println(contactUser.getEmail());
                     contactModel.makeAdmin(contactUser);
                 }
             });
