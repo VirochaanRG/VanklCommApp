@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/teal_primary"
     tools:context=".Controllers.ContactControllers.ContactList">
 
     <ListView
@@ -22,5 +23,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="@+id/mobile_list"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:text="Go to search"/>
+        android:text="Go to search"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/contacts_1"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,20 +8,23 @@
     android:gravity="center_vertical"
     android:orientation="vertical"
     android:padding="15dp"
+    android:background="@color/teal_primary"
     tools:context=".CreateAccount" >
 
     <!-- TextView for heading -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Create Account" />
+        android:text="Create Account"
+        android:textColor="#FFFFFF"/>
 
     <!-- Edit text for email -->
     <EditText
         android:id="@+id/email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter your Email" />
+        android:hint="Enter your Email"
+        android:textColor="#000000"/>
 
     <!-- Edit text for password -->
     <EditText
@@ -29,12 +32,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Enter your Password"
-        android:inputType="textPassword" />
+        android:inputType="textPassword"
+        android:textColor="#000000"/>
     <EditText
         android:id="@+id/username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter your Username" />
+        android:hint="Enter your Username"
+        android:textColor="#000000"/>
 
     <!-- Edit text for password -->
     <EditText
@@ -42,13 +47,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Enter your Employee ID"
-        android:inputType="textPassword" />
+        android:inputType="textPassword"
+        android:textColor="#000000"/>
     <!-- Button for register with text "Register" -->
     <Button
         android:id="@+id/btnregister"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="CreateAccount" />
+        android:text="Create Account"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/createacc_button_background"/>
 
     <!-- ProgressBar for loading time -->
     <ProgressBar
@@ -56,4 +64,4 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone" />
-</LinearLayout> 
+</LinearLayout>

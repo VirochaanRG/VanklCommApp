@@ -1,0 +1,6 @@
+<!-- create_button_background.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/teal_dark" />
+    <corners android:radius="8dp" />
+</shape>
