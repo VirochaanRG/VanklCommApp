@@ -6,6 +6,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -38,7 +43,10 @@ public class BroadcastChannelAdapter extends RecyclerView.Adapter<BroadcastChann
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = mInflater.inflate(R.layout.message, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.message, parent, false);
+        RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) view.getLayoutParams();
+        layoutParams.setMargins(0, 0, 0, 76);
+        view.setLayoutParams(layoutParams);
         return new ViewHolder(view);
     }
 

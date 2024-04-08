@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.ImageButton;
 
 import com.example.vanklcommapp.Application.SystemManagement;
 import com.example.vanklcommapp.Controllers.MainActivity;
@@ -57,7 +58,7 @@ public class MessageChannel extends AppCompatActivity implements Observer {
         EditText msg = findViewById(R.id.chat_message_input);
         recyclerView = findViewById(R.id.chat_recycler_send);
         Button buttonReturn = findViewById(R.id.home);
-        Button buttonSend = findViewById(R.id.message_send_btn);
+        ImageButton buttonSend = findViewById(R.id.message_send_btn);
 
         //The contact we are contacting
         tv.setText(contactEmail);
