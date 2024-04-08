@@ -14,6 +14,8 @@ VANKLComm is a messaging app to be used on Android platforms. It provides encryp
 
 Import this project in Android Studio by choosing the build.gradle file or through VCS if you have the required permissions. The KDC web server is already being hosted on render.com so no need for local installation or running of the server and is only provided as a reference.
 
+Run in Android Studio by running the app configuration (should be the default one) in the top right hand corner.
+
 ### Through Executable
 
 If you have the .apk file of the app then simply download the .apk to any Android device. Ensure that if you are using an emulator, it has Internet access as it is necessary for the usage of this app.
