@@ -19,11 +19,22 @@
 
     <Button
         android:id="@+id/btnList"
-        android:layout_width="wrap_content"
+        android:layout_width="145dp"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="@+id/mobile_list"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:text="Go to search"
+        android:text="Add Contact"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/contacts_1"/>
+
+    <Button
+        android:id="@+id/home"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="145dp"
+        android:layout_height="wrap_content"
+        android:text="Home"
+        app:layout_constraintBottom_toBottomOf="@+id/btnList"
+        app:layout_constraintEnd_toEndOf="parent" 
         android:textColor="#FFFFFF"
         android:background="@drawable/contacts_1"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -13,6 +13,7 @@ import com.example.vanklcommapp.Application.SystemManagement;
 import com.example.vanklcommapp.Models.AccountModel;
 import com.example.vanklcommapp.Models.ContactModel;
 import com.example.vanklcommapp.R;
+import com.example.vanklcommapp.Controllers.MainActivity;
 
 import java.util.ArrayList;
 import java.util.Observable;
@@ -52,6 +53,16 @@ public class ContactList extends AppCompatActivity implements Observer {
             public void onClick(View v) {
                 // Intent to contactadder when button clicked
                 Intent intent = new Intent(getApplicationContext(), ContactAdder.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+        Button buttonReturn = findViewById(R.id.home);
+        buttonReturn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Intent to Main Activity
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
                 finish();
             }

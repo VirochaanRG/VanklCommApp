@@ -56,6 +56,21 @@
         android:layout_height="wrap_content"
         android:text="Create Account"
         android:textColor="#FFFFFF"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/createacc_button_background"/>
+    
+    <!-- Button to return to login -->
+    <Button
+        android:id="@+id/buttonLogin"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Back to Login"
+        android:textColor="#FFFFFF"
         android:background="@drawable/createacc_button_background"/>
 
     <!-- ProgressBar for loading time -->

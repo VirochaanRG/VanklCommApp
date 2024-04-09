@@ -61,8 +61,19 @@ public class CreateAccount extends AppCompatActivity implements Observer {
                 registerNewUser();
             }
         });
-    }
+        Button buttonLogin = findViewById(R.id.buttonLogin);
+        buttonLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Intent to Login Activity
+                Intent intent = new Intent(CreateAccount.this, Login.class);
+                startActivity(intent);
+                finish();
+            }
+        });
 
+    }
+    
     // Method to register a new user
     private void registerNewUser() {
         progressbar.setVisibility(View.VISIBLE); // Show progress bar
